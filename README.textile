@@ -40,6 +40,9 @@ gradlew gwtcompile devmode
 to be able to test it in those browsers that do not have GWT developer plugin
 available.
 
+There is a servlet (UploadServlet) available for testing that will save uploaded
+files to temp directory. So feel free to test and debug.
+
 There is a problem with testing iframe uploading as you need protocol, host and
 port to be exactly the same for server and client to be able to get contents of
 the iframe (JS security restriction). So you can set up a proxy (I prefer
