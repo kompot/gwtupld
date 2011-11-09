@@ -72,7 +72,9 @@ task devmode() << {
     arg(line: '-war ' + dirWar)
     arg(line: '-startupUrl ' + dirEditor + 'index.html')
     arg(line: '-port 8081')
-    arg(line: '-bindAddress 0.0.0.0')
+    // uncomment to bind to all IPs, not just 127.0.0.1
+    // useful for debugging in a virtualized OS
+    // arg(line: '-bindAddress 0.0.0.0')
     arg(value: 'com.gmail.kompotik.' + archivesBaseName + '.GwtupldDevMode')
     classpath {
       pathElement(location: "src/main/java")
@@ -106,7 +108,7 @@ gwtCompile.dependsOn classes
 //devmode.dependsOn gwtCompile
 devmode.dependsOn copyIndexHtml
 devmode.dependsOn jettyRun
-assemble.dependsOn jar
+//assemble.dependsOn jar
 
 task wrapper(type: Wrapper) {
   gradleVersion = '1.0-milestone-5'
