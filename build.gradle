@@ -11,6 +11,8 @@ version = '0.0.1'
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
+jar.enabled = true
+war.enabled = false
 jettyRun.daemon = true
 
 idea {
@@ -104,6 +106,7 @@ gwtCompile.dependsOn classes
 //devmode.dependsOn gwtCompile
 devmode.dependsOn copyIndexHtml
 devmode.dependsOn jettyRun
+assemble.dependsOn jar
 
 task wrapper(type: Wrapper) {
   gradleVersion = '1.0-milestone-5'
