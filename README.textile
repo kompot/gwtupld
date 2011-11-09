@@ -28,13 +28,13 @@ Basically it is just a rewriting of it to GWT.
 All you need to test it locally is to run the following command
 
 <pre>
-gradle devmode
+gradlew devmode
 </pre>
 
 type
 
 <pre>
-gradle gwtcompile devmode
+gradlew gwtcompile devmode
 </pre>
 
 to be able to test it in those browsers that do not have GWT developer plugin
@@ -62,4 +62,4 @@ server {
 </pre>
 
 And then just replace port 8081 with 8082 in the address bar when testing.
-All request will go to port 8082 and then dispatched to appropriate locations.
+All requests will go to port 8082 and then dispatched to appropriate locations.
