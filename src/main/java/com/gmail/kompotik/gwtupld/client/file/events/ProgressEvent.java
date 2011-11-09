@@ -17,15 +17,40 @@
  **********************************************/
 package com.gmail.kompotik.gwtupld.client.file.events;
 
-import com.google.gwt.event.shared.EventHandler;
+import com.google.gwt.event.dom.client.DomEvent;
 
 /**
- * Handler interface for {@link com.gmail.kompotik.gwtupld.client.file.events.ProgressEvent} events.
+ * The progress event is triggered while reading (and decoding) blob, 
+ * and reporting partial Blob data (progess.loaded/progress.total) 
  */
-public interface ProgressHandler extends EventHandler {
+public class ProgressEvent extends ProgressEventBase<ProgressHandler> {
+	private static final Type<ProgressHandler> TYPE = new Type<ProgressHandler>(
+			"progress", new ProgressEvent());
+
 	/**
-	 * Called when 'progress' is fired.
-	 * @param event the {@link com.gmail.kompotik.gwtupld.client.file.events.ProgressEvent} that was fired
+	 * Protected constructor, use
+	 * {@link DomEvent#fireNativeEvent(com.google.gwt.dom.client.NativeEvent, com.google.gwt.event.shared.HasHandlers)}
+	 * to fire mouse out events.
 	 */
-	public void onProgress(ProgressEvent event);
+	protected ProgressEvent() {
+	}
+
+	/**
+	 * @return the handler type
+	 */
+	public Type<ProgressHandler> getAssociatedType() {
+		return TYPE;
+	}
+
+	/**
+	 * @return the handler type
+	 */
+	public static Type<ProgressHandler> getType() {
+		return TYPE;
+	}
+
+	@Override
+	protected void dispatch(ProgressHandler handler) {
+		handler.onProgress(this);
+	}
 }

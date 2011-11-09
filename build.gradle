@@ -16,6 +16,11 @@ jettyRun.daemon = true
 idea {
   project {
     jdkName = '1.6'
+    ipr {
+      withXml { provider ->
+        provider.node.component.find { it.@name == 'VcsDirectoryMappings' }.mapping.@vcs = 'Git'
+      }
+    }
   }
 }
 
