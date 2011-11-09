@@ -1,0 +1,65 @@
+h1. Gwtupld
+
+h2. File uploader for GWT with drag'n'drop, multiple file selection
+and graceful fallback for old browsers.
+
+h3. Features
+
+* Drag'n'drop support in ...
+* Multiple file selection in ...
+* Progress bar in ...
+* XHR file upload in ...
+* Fallback to hidden iframe for all others
+* Doesn't require Flash or anything but GWT
+
+h3. To be implemented
+
+* Cancel button for XHR uploads
+* Internationalization
+* File size & extension verification
+* Append parameters when submitting file
+
+h3. Developing and testing
+
+This component is based on code of `file-uploader` project.
+https://github.com/valums/file-uploader
+Basically it is just a rewriting of it to GWT.
+
+All you need to test it locally is to run the following command
+
+<pre>
+gradle devmode
+</pre>
+
+type
+
+<pre>
+gradle gwtcompile devmode
+</pre>
+
+to be able to test it in those browsers that do not have GWT developer plugin
+available.
+
+There is a problem with testing iframe uploading as you need protocol, host and
+port to be exactly the same for server and client to be able to get contents of
+the iframe (JS security restriction). So you can set up a proxy (I prefer
+nginx) with the following configuration:
+
+<pre>
+server {
+  listen 8082;
+
+  client_max_body_size 2000M;
+
+  location ~* ^/gwtupld/ {
+    proxy_pass http://127.0.0.1:8080;
+  }
+
+  location ~* ^/editor/ {
+    proxy_pass http://127.0.1.1:8081;
+  }
+}
+</pre>
+
+And then just replace port 8081 with 8082 in the address bar when testing.
+All request will go to port 8082 and then dispatched to appropriate locations.

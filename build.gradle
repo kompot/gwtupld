@@ -1,0 +1,105 @@
+apply plugin: 'java'
+apply plugin: 'groovy'
+apply plugin: 'maven'
+apply plugin: 'idea'
+apply plugin: 'jetty'
+
+archivesBaseName = 'gwtupld'
+group = 'com.gmail.kompotik'
+version = '0.0.1'
+
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+
+jettyRun.daemon = true
+
+idea {
+  project {
+    jdkName = '1.6'
+  }
+}
+
+repositories {
+  mavenRepo url: "http://repo1.maven.org/maven2"
+  mavenRepo url: "http://snapshots.repository.codehaus.org/"
+}
+
+dependencies {
+  compile 'com.google.gwt:gwt-servlet:2.4.0@jar'
+  compile 'com.google.gwt:gwt-servlet:2.4.0@jar'
+  compile 'com.google.gwt:gwt-user:2.4.0@jar'
+  compile 'com.google.gwt:gwt-dev:2.4.0@jar'
+  compile 'com.google.code.gson:gson:1.7.1@jar'
+//  compile files('lib/lib-gwt-file-0.2.jar')
+  compile 'commons-fileupload:commons-fileupload:1.2.1@jar'
+}
+
+dirEditor = 'editor/'
+dirWar = 'build/war/'
+dirGwtBuild = dirWar + dirEditor
+
+task gwtCompile() << { task ->
+  created = (new File(dirGwtBuild)).mkdirs()
+  ant.java(classname:'com.google.gwt.dev.Compiler', failOnError: 'true', fork: 'true') {
+    jvmarg(value: '-Xss1024k')
+    jvmarg(value: '-Xms256M')
+    jvmarg(value: '-Xmx256M')
+    arg(line: '-war ' + dirGwtBuild)
+    arg(line: '-logLevel INFO')
+//    arg(line: '-style PRETTY')
+    arg(line: '-localWorkers 4')
+//    arg(line: '-treeLogger')
+    arg(value: 'com.gmail.kompotik.' + archivesBaseName + '.GwtupldDevMode')
+    classpath {
+      pathElement(location: "src/main/java")
+      pathElement(path: configurations.compile.asPath)
+    }
+  }
+}
+
+task devmode() << {
+  ant.java(classname:'com.google.gwt.dev.DevMode', failOnError: 'true', fork: 'true') {
+    jvmarg(value: '-Xss1024k')
+    jvmarg(value: '-Xms256M')
+    jvmarg(value: '-Xmx256M')
+    arg(line: '-war ' + dirWar)
+    arg(line: '-startupUrl ' + dirEditor + 'index.html')
+    arg(line: '-port 8081')
+    arg(line: '-bindAddress 0.0.0.0')
+    arg(value: 'com.gmail.kompotik.' + archivesBaseName + '.GwtupldDevMode')
+    classpath {
+      pathElement(location: "src/main/java")
+      pathElement(path: configurations.compile.asPath)
+    }
+  }
+}
+
+task copyIndexHtml(type: Copy) {
+  from('files') {
+    include('*.html')
+    include('*.js')
+    include('*.css')
+    include('*.gif')
+  }
+  into(dirGwtBuild)
+}
+
+task copyGwtXmlSources(type: Copy) {
+  from('src/main/java') {
+    include('**/*.xml')
+    include('**/*.gwt.xml')
+    include('**/*.png')
+    include('**/*.java')
+  }
+  into('build/classes/main')
+}
+
+classes.dependsOn copyGwtXmlSources
+gwtCompile.dependsOn classes
+//devmode.dependsOn gwtCompile
+devmode.dependsOn copyIndexHtml
+devmode.dependsOn jettyRun
+
+task wrapper(type: Wrapper) {
+  gradleVersion = '1.0-milestone-5'
+}

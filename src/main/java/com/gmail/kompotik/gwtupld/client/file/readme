@@ -1,0 +1,6 @@
+Files in this package and below were taken from
+`lib-gwt-file` project version 0.2
+http://code.google.com/p/lib-gwt-file/
+
+Because it was not found in a maven repository,
+I decided to copy required files directly.
