@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.gmail.kompotik.gwtupld.client.file.File;
 import com.gmail.kompotik.gwtupld.client.file.FileList;
-
+import com.gmail.kompotik.gwtupld.client.i18n.GwtupldConstants;
 import com.gmail.kompotik.gwtupld.client.xhr.DataTransferAdvanced;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.DivElement;
@@ -36,6 +36,7 @@ import com.google.gwt.user.client.ui.Widget;
 public class FileUploaderBasic extends Widget implements UploadProgressHandlers {
   interface Binder extends UiBinder<DivElement, FileUploaderBasic> {}
   private static Binder binder = GWT.create(Binder.class);
+  private final GwtupldConstants constants;
 
   @UiField MyCss style;
   interface MyCss extends CssResource {
@@ -59,10 +60,11 @@ public class FileUploaderBasic extends Widget implements UploadProgressHandlers 
     this.options = options;
     uploadHandler = createUploadHandler();
     fileInfos = new HashMap<String, FileInfo>();
+    constants = (GwtupldConstants) GWT.create(GwtupldConstants.class);
     dropZoneAndButtonContainer.setInnerText(
         options.useAdvancedUploader() ?
-        "Drop files here or click to attach" :
-        "Click to attach files"
+        constants.welcomeXhr() :
+        constants.welcomeIframe()
     );
     fileInput = createUploadButton(dropZoneAndButtonContainer);
     // TODO: what is this for?
@@ -312,33 +314,33 @@ public class FileUploaderBasic extends Widget implements UploadProgressHandlers 
   }
 
   private void insertCancelButton(final FileInfo fileInfo, TableRowElement row) {
-    final TableCellElement cancelCell = row.insertCell(row.getCells().getLength());
-    cancelCell.setInnerHTML("cancel");
-    cancelCell.getStyle().setTextDecoration(Style.TextDecoration.UNDERLINE);
-    cancelCell.getStyle().setCursor(Style.Cursor.POINTER);
+    final TableCellElement cc = row.insertCell(row.getCells().getLength());
+    cc.setInnerHTML(constants.cancel());
+    cc.getStyle().setTextDecoration(Style.TextDecoration.UNDERLINE);
+    cc.getStyle().setCursor(Style.Cursor.POINTER);
     addDomHandler(new ClickHandler() {
       @Override
       public void onClick(ClickEvent event) {
         final EventTarget et = event.getNativeEvent().getEventTarget();
         final Element el = Element.as(et);
-        if (el == cancelCell) {
+        if (el == cc) {
           uploadHandler._cancel(fileInfo.getId());
         }
       }
     }, ClickEvent.getType());
   }
 
-  private void updateProgressBar(FileInfo fileInfo, TableCellElement progressCell) {
-    final DivElement progressBar = (DivElement) progressCell.getElementsByTagName("div").getItem(0);
-    if (fileInfo.getPercentageReady() > 0 && fileInfo.getPercentageReady() < 100) {
-      progressBar.setInnerText(String.valueOf(fileInfo.getPercentageReady()) + "%");
-      progressBar.getStyle().setWidth(fileInfo.getPercentageReady(), Style.Unit.PCT);
-    } else if (fileInfo.getPercentageReady() == 100) {
-      progressBar.setInnerText("ready");
-      progressBar.getStyle().setWidth(100, Style.Unit.PCT);
+  private void updateProgressBar(FileInfo fileInfo, TableCellElement cell) {
+    final DivElement div = (DivElement) cell.getElementsByTagName("div").getItem(0);
+    if (fileInfo.uploadingWasStartedAndHasNotFinished()) {
+      div.setInnerText(String.valueOf(fileInfo.getPercentageReady()) + "%");
+      div.getStyle().setWidth(fileInfo.getPercentageReady(), Style.Unit.PCT);
+    } else if (fileInfo.uploadingHasFinished()) {
+      div.setInnerText(constants.ready());
+      div.getStyle().setWidth(100, Style.Unit.PCT);
     } else {
-      progressBar.setInnerText("uploading");
-      progressBar.getStyle().setWidth(100, Style.Unit.PCT);
+      div.setInnerText(constants.uploading());
+      div.getStyle().setWidth(100, Style.Unit.PCT);
     }
   }
 
@@ -351,6 +353,6 @@ public class FileUploaderBasic extends Widget implements UploadProgressHandlers 
     if (endIndex > s.length()) {
       endIndex = s.length() - 1;
     }
-    return ", " + s.substring(0, endIndex) + " MB";
+    return ", " + s.substring(0, endIndex) + " " + constants.sizeMB();
   }
 }

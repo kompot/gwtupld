@@ -41,4 +41,12 @@ public class FileInfo {
     final Double v = (double) loaded / (double) total * 100;
     return v.byteValue();
   }
+
+  public boolean uploadingWasStartedAndHasNotFinished() {
+    return getPercentageReady() > 0 && getPercentageReady() < 100;
+  }
+
+  public boolean uploadingHasFinished() {
+    return getPercentageReady() == 100;
+  }
 }

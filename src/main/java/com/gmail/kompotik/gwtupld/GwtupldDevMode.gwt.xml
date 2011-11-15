@@ -1,5 +1,4 @@
 <module rename-to='gwtupld'>
-  <inherits name='com.google.gwt.user.User'/>
   <inherits name="com.gmail.kompotik.gwtupld.Gwtupld"/>
   <entry-point class="com.gmail.kompotik.gwtupld.client.GwtupldEntryPoint"/>
 </module>
