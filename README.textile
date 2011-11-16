@@ -14,8 +14,10 @@ h3. Features
 
 h3. To be implemented
 
+* State retention - set files on load
+* Delete button for files stored on server (that are set
+  via state retention mechanism)
 * Cancel button for XHR uploads
-* Internationalization
 * File size & extension verification
 * Append parameters when submitting file
 
