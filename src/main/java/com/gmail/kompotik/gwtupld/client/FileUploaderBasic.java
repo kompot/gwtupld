@@ -6,7 +6,7 @@ import java.util.Map;
 
 import com.gmail.kompotik.gwtupld.client.file.File;
 import com.gmail.kompotik.gwtupld.client.file.FileList;
-import com.gmail.kompotik.gwtupld.client.i18n.GwtupldConstants;
+import com.gmail.kompotik.gwtupld.client.i18n.GwtupldMessages;
 import com.gmail.kompotik.gwtupld.client.utils.UUID;
 import com.gmail.kompotik.gwtupld.client.xhr.DataTransferAdvanced;
 import com.google.gwt.core.client.GWT;
@@ -23,6 +23,10 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.DragEnterEvent;
+import com.google.gwt.event.dom.client.DragEnterHandler;
+import com.google.gwt.event.dom.client.DragLeaveEvent;
+import com.google.gwt.event.dom.client.DragLeaveHandler;
 import com.google.gwt.event.dom.client.DragOverEvent;
 import com.google.gwt.event.dom.client.DragOverHandler;
 import com.google.gwt.event.dom.client.DropEvent;
@@ -38,12 +42,13 @@ import com.google.gwt.user.client.ui.Widget;
 public class FileUploaderBasic extends Widget implements UploadProgressHandlers {
   interface Binder extends UiBinder<DivElement, FileUploaderBasic> {}
   private static Binder binder = GWT.create(Binder.class);
-  private final GwtupldConstants constants;
+  private final GwtupldMessages messages;
 
   @UiField MyCss style;
   interface MyCss extends CssResource {
     String progressBar();
     String dropzone();
+    String dropzoneHover();
     String data();
   }
 
@@ -62,11 +67,11 @@ public class FileUploaderBasic extends Widget implements UploadProgressHandlers 
     this.options = options;
     uploadHandler = createUploadHandler();
     fileInfos = new HashMap<String, FileInfo>();
-    constants = (GwtupldConstants) GWT.create(GwtupldConstants.class);
+    messages = (GwtupldMessages) GWT.create(GwtupldMessages.class);
     dropZoneAndButtonContainer.setInnerText(
         options.useAdvancedUploader() ?
-        constants.welcomeXhr() :
-        constants.welcomeIframe()
+        messages.welcomeXhr() :
+        messages.welcomeIframe()
     );
     fileInput = createUploadButton(dropZoneAndButtonContainer);
     // TODO: what is this for?
@@ -81,7 +86,9 @@ public class FileUploaderBasic extends Widget implements UploadProgressHandlers 
         }
       }
     }, ChangeEvent.getType());
-    addDragAndDropHandlers();
+    if (options.useAdvancedUploader()) {
+      addDragAndDropHandlers();
+    }
   }
 
   public void updateView(List<FileInfo> files) {
@@ -118,9 +125,10 @@ public class FileUploaderBasic extends Widget implements UploadProgressHandlers 
       public void onDrop(DropEvent event) {
         final EventTarget eventTarget = event.getNativeEvent().getEventTarget();
         Element el = Element.as(eventTarget);
-        if (el == dropZoneAndButtonContainer || el == fileInput) {
+        if (el == fileInput) {
           DataTransferAdvanced dta = (DataTransferAdvanced) event.getDataTransfer();
           uploadFileList(dta.getFiles());
+          dropZoneAndButtonContainer.removeClassName(style.dropzoneHover());
         }
         event.preventDefault();
       }
@@ -141,14 +149,34 @@ public class FileUploaderBasic extends Widget implements UploadProgressHandlers 
         event.preventDefault();
       }
     }, DragOverEvent.getType());
+    addDomHandler(new DragEnterHandler() {
+      @Override
+      public void onDragEnter(DragEnterEvent event) {
+        final EventTarget eventTarget = event.getNativeEvent().getEventTarget();
+        Element el = Element.as(eventTarget);
+        if (el == fileInput) {
+          dropZoneAndButtonContainer.addClassName(style.dropzoneHover());
+        }
+      }
+    }, DragEnterEvent.getType());
+    addDomHandler(new DragLeaveHandler() {
+      @Override
+      public void onDragLeave(DragLeaveEvent event) {
+        final EventTarget eventTarget = event.getNativeEvent().getEventTarget();
+        Element el = Element.as(eventTarget);
+        if (el == fileInput) {
+          dropZoneAndButtonContainer.removeClassName(style.dropzoneHover());
+        }
+      }
+    }, DragLeaveEvent.getType());
   }
 
   private UploadHandlerAbstract createUploadHandler() {
     final UploadHandlerAbstract uploadHandler;
     if (options.useAdvancedUploader()) {
-      uploadHandler = new UploadHandlerXhr(this);
+      uploadHandler = new UploadHandlerXhr(this, options);
     } else {
-      uploadHandler = new UploadHandlerForm(this);
+      uploadHandler = new UploadHandlerForm(this, options);
     }
     return uploadHandler;
   }
@@ -180,12 +208,9 @@ public class FileUploaderBasic extends Widget implements UploadProgressHandlers 
 
   private void uploadFileList(FileList files) {
     for (File file : files) {
-      if (!validateFile(file)) {
-        return;
+      if (validateFile(file)) {
+        uploadFile(file);
       }
-    }
-    for (File file : files) {
-      uploadFile(file);
     }
   }
 
@@ -200,52 +225,64 @@ public class FileUploaderBasic extends Widget implements UploadProgressHandlers 
   }
 
   private boolean validateFile(FileInputElement input) {
-    // TODO implement
-    return true;
+    String name = input.getValue().replaceAll(".*(\\/|\\\\)", "");
+    int size = -1;
+    return validate(name, size);
   }
 
-  // TODO implement
   private boolean validateFile(File file) {
-    return true;
-    /**
+    String name = file.getName();
+    int size = file.getSize();
+    return validate(name, size);
+  }
 
-             var name, size;
+  private boolean validate(String name, int size) {
+    final String error = validateFile(name, size);
+    if (error != null) {
+      addFileInfo(UUID.uuid(), name, size, error);
+    }
+    return error == null;
+  }
 
-        if (file.value){
-            // it is a file input
-            // get input value and remove path to normalize
-            name = file.value.replace(/.*(\/|\\)/, "");
-        } else {
-            // fix missing properties in Safari
-            name = file.fileName != null ? file.fileName : file.name;
-            size = file.fileSize != null ? file.fileSize : file.size;
-        }
-
-        if (! this._isAllowedExtension(name)){
-            this._error('typeError', name);
-            return false;
-
-        } else if (size === 0){
-            this._error('emptyError', name);
-            return false;
-
-        } else if (size && this._options.sizeLimit && size > this._options.sizeLimit){
-            this._error('sizeError', name);
-            return false;
-
-        } else if (size && size < this._options.minSizeLimit){
-            this._error('minSizeError', name);
-            return false;
-        }
-
-        return true;
-
-     */
+  /**
+   * Checks file for being valid for upload
+   * @param name file name
+   * @param size file size
+   * @return Error cause or null if OK
+   */
+  private String validateFile(String name, int size) {
+    if (!isAllowedExtension(name)) {
+      return messages.extensionNotAllowed(
+          options.getAllowedExtensions().toString()
+      );
+    }
+    if (size == 0) {
+      return messages.fileSizeIsZero();
+    }
+    if (size > 0 && options.getMinSize() > 0 && size < options.getMinSize()) {
+      return messages.fileIsTooSmall(formatSize(options.getMinSize()));
+    }
+    if (size > 0 && options.getMaxSize() > 0 && size > options.getMaxSize()) {
+      return messages.fileIsTooLarge(formatSize(options.getMaxSize()));
+    }
+    return null;
+  }
+  
+  private boolean isAllowedExtension(String name) {
+    if (options.getAllowedExtensions() == null
+        || options.getAllowedExtensions().size() == 0) {
+      return true;
+    }
+    if (name == null || name.lastIndexOf('.') == -1) {
+      return false;
+    }
+    String ext = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
+    return options.getAllowedExtensions().contains(ext);
   }
 
   @Override
   public void onProgress(String id, String filename, int loaded, int total) {
-    fileInfos.put(id, new FileInfo(id, null, filename, total, loaded, null));
+    fileInfos.put(id, new FileInfo(id, null, filename, total, loaded, null, null));
     updateExactFileInfo(id);
   }
 
@@ -266,8 +303,8 @@ public class FileUploaderBasic extends Widget implements UploadProgressHandlers 
             filename,
             Integer.valueOf(String.valueOf(size)),
             Integer.valueOf(String.valueOf(size)),
-            String.valueOf(type)
-        ));
+            String.valueOf(type),
+            null));
         updateExactFileInfo(id);
       }
     }
@@ -282,9 +319,13 @@ public class FileUploaderBasic extends Widget implements UploadProgressHandlers 
   @Override
   public Long onSubmit(String id, String filename) {
     filesInProgress++;
-    fileInfos.put(id, new FileInfo(id, null, filename, -1, -1, null));
-    updateExactFileInfo(id);
+    addFileInfo(id, filename, -1, null);
     return filesInProgress;
+  }
+
+  private void addFileInfo(String id, String filename, int size, String error) {
+    fileInfos.put(id, new FileInfo(id, null, filename, size, -1, null, error));
+    updateExactFileInfo(id);
   }
 
   /**
@@ -338,13 +379,17 @@ public class FileUploaderBasic extends Widget implements UploadProgressHandlers 
           + fileInfo.getName()
           + "</a>";
     }
-    fileNameCell.setInnerHTML(fileinfo + formatSize(fileInfo.getTotal()));
+    String size = formatSize(fileInfo.getTotal());
+    if (!size.isEmpty()) {
+      size = ", " + size;
+    }
+    fileNameCell.setInnerHTML(fileinfo + size);
     updateProgressBar(fileInfo, progressCell);
   }
 
   private void insertCancelButton(final FileInfo fileInfo, TableRowElement row) {
     final TableCellElement cc = row.insertCell(row.getCells().getLength());
-    cc.setInnerHTML(constants.cancel());
+    cc.setInnerHTML(messages.cancel());
     cc.getStyle().setTextDecoration(Style.TextDecoration.UNDERLINE);
     cc.getStyle().setCursor(Style.Cursor.POINTER);
     addDomHandler(new ClickHandler() {
@@ -365,14 +410,18 @@ public class FileUploaderBasic extends Widget implements UploadProgressHandlers 
       div.setInnerText(String.valueOf(fileInfo.getPercentageReady()) + "%");
       div.getStyle().setWidth(fileInfo.getPercentageReady(), Style.Unit.PCT);
     } else if (fileInfo.uploadingHasFinished()) {
-      // this will skip inserting constants.ready()
+      // this will skip inserting messages.ready()
       // when doing initial updateView
       if (!div.getInnerText().isEmpty()) {
-        div.setInnerText(constants.ready());
+        div.setInnerText(messages.ready());
         div.getStyle().setWidth(100, Style.Unit.PCT);
       }
     } else {
-      div.setInnerText(constants.uploading());
+      div.setInnerText(
+          fileInfo.getError() == null
+              ? messages.uploading()
+              : fileInfo.getError()
+      );
       div.getStyle().setWidth(100, Style.Unit.PCT);
     }
   }
@@ -395,7 +444,7 @@ public class FileUploaderBasic extends Widget implements UploadProgressHandlers 
     if (endIndex > s.length()) {
       endIndex = s.length() - 1;
     }
-    return ", " + s.substring(0, endIndex) + " " + (mb ?
-        constants.sizeMB() : constants.sizeKB());
+    return s.substring(0, endIndex) + " " + (mb ?
+        messages.sizeMB() : messages.sizeKB());
   }
 }

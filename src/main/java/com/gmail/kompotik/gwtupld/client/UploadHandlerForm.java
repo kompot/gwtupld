@@ -21,8 +21,8 @@ import com.google.gwt.user.client.ui.RootPanel;
 public class UploadHandlerForm extends UploadHandlerAbstract {
   private Map<String, InputElement> inputs;
 
-  public UploadHandlerForm(UploadProgressHandlers progressHandlers) {
-    super(progressHandlers);
+  public UploadHandlerForm(UploadProgressHandlers progressHandlers, Options options) {
+    super(progressHandlers, options);
     this.inputs = new HashMap<String, InputElement>();
   }
 

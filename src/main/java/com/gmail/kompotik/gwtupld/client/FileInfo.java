@@ -7,15 +7,17 @@ public class FileInfo {
   private int total;
   private String type;
   private String url;
+  private String error;
 
   public FileInfo(String id, String url, String filename, int total, int loaded,
-                  String type) {
+                  String type, String error) {
     this.id = id;
     this.name = filename;
     this.total = total;
     this.loaded = loaded;
     this.type = type;
     this.url = url;
+    this.error = error;
   }
 
   public String getId() {
@@ -40,6 +42,10 @@ public class FileInfo {
 
   public String getUrl() {
     return url;
+  }
+
+  public String getError() {
+    return error;
   }
 
   public byte getPercentageReady() {

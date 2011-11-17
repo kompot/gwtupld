@@ -23,7 +23,8 @@ public class Blob extends JavaScriptObject {
 	protected Blob() {
 	}
 	public final native int getSize() /*-{
-      return this.size;
+      // fix missing properties in Safari
+      return this.fileSize != null ? this.fileSize : this.size;
 	}-*/; 
 	public final native Blob slice(int start, int length) /*-{
       return this.slice(start, length);

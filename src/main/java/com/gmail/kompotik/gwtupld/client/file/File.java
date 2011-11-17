@@ -22,7 +22,8 @@ public class File extends Blob {
 	protected File() {
 	}
 	public final native String getName() /*-{
-      return this.name;
+      // fix missing properties in Safari
+      return this.fileName != null ? this.fileName : this.name;
 	}-*/; 
 	public final native String getType() /*-{
       return this.type;

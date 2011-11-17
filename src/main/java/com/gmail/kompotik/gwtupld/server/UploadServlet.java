@@ -74,13 +74,14 @@ public class UploadServlet extends HttpServlet {
       List<UploadedFile> files = new ArrayList<UploadedFile>();
       for (FileItem item : items) {
         if (!item.isFormField()) {
-          File file = new File(realPath + item.getName());
+          final String filename = item.getName();
+          File file = new File(realPath + filename);
           item.write(file);
           final UploadedFile uploadedFile = new UploadedFile(
-              item.getName(),
+              filename,
               (int) item.getSize(),
               item.getContentType(),
-              file.getAbsolutePath()
+              urlPath + filename
           );
           files.add(uploadedFile);
         }

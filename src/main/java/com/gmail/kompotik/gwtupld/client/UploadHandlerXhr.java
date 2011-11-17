@@ -24,8 +24,8 @@ public class UploadHandlerXhr extends UploadHandlerAbstract {
   // current loaded size in bytes for each file
   private Map<String, Integer> loaded;
 
-  public UploadHandlerXhr(UploadProgressHandlers handlers) {
-    super(handlers);
+  public UploadHandlerXhr(UploadProgressHandlers handlers, Options options) {
+    super(handlers, options);
     files = new HashMap<String, File>();
     xhrs = new HashMap<String, XMLHttpRequest>();
     loaded = new HashMap<String, Integer>();

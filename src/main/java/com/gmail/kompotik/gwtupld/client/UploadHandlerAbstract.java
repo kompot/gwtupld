@@ -98,9 +98,10 @@ public abstract class UploadHandlerAbstract {
     }
   }
 
-  protected UploadHandlerAbstract(UploadProgressHandlers progressHandlers) {
+  protected UploadHandlerAbstract(UploadProgressHandlers progressHandlers,
+                                  Options options) {
     this.progressHandlers = progressHandlers;
-    this.options = new Options();
+    this.options = options;
     this.queue = new ArrayList<String>();
     this.params = new HashMap<String, Map<String, String>>();
   }
