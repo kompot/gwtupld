@@ -14,7 +14,7 @@ public class Options {
   private String action =
       "http://" + Window.Location.getHostName() + ":" +
       (Window.Location.getPort().equals("8081") ? "8080" : "8082")
-      + "/gwtupld/";
+      + "/gwtupld/upload-servlet/";
   private Map<String, String> params = new HashMap<String, String>();
   private boolean multiple = true;
   private byte maxConnections = 3;

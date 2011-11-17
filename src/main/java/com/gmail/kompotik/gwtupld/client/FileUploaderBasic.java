@@ -1,11 +1,13 @@
 package com.gmail.kompotik.gwtupld.client;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.gmail.kompotik.gwtupld.client.file.File;
 import com.gmail.kompotik.gwtupld.client.file.FileList;
 import com.gmail.kompotik.gwtupld.client.i18n.GwtupldConstants;
+import com.gmail.kompotik.gwtupld.client.utils.UUID;
 import com.gmail.kompotik.gwtupld.client.xhr.DataTransferAdvanced;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.DivElement;
@@ -82,6 +84,23 @@ public class FileUploaderBasic extends Widget implements UploadProgressHandlers 
     addDragAndDropHandlers();
   }
 
+  public void updateView(List<FileInfo> files) {
+    for (FileInfo file : files) {
+      final String uuid = UUID.uuid();
+      fileInfos.put(uuid, file);
+      updateExactFileInfo(uuid);
+    }
+  }
+
+  /**
+   * Used to get control state.
+   *
+   * @return FileInfos by id
+   */
+  public Map<String, FileInfo> getFileInfos() {
+    return fileInfos;
+  }
+
   private FileInputElement createUploadButton(DivElement container) {
     if (uploadButton != null) {
       uploadButton.reset();
@@ -134,7 +153,7 @@ public class FileUploaderBasic extends Widget implements UploadProgressHandlers 
     return uploadHandler;
   }
 
-  public native static boolean preventLeaveInProgress() /*-{
+  private native static boolean preventLeaveInProgress() /*-{
       var self = this;
 
       qq.attach(window, 'beforeunload', function(e){
@@ -226,8 +245,8 @@ public class FileUploaderBasic extends Widget implements UploadProgressHandlers 
 
   @Override
   public void onProgress(String id, String filename, int loaded, int total) {
-    fileInfos.put(id, new FileInfo(id, filename, total, loaded, null));
-    updateView(id);
+    fileInfos.put(id, new FileInfo(id, null, filename, total, loaded, null));
+    updateExactFileInfo(id);
   }
 
   @Override
@@ -237,30 +256,34 @@ public class FileUploaderBasic extends Widget implements UploadProgressHandlers 
       for (int i = 0; i < array.size(); i++) {
         final JSONObject value = (JSONObject) array.get(i);
         final JSONValue size = value.get("size");
+        final JSONValue url = value.get("url");
         final JSONValue type = value.get("type");
+        final String url2 = String.valueOf(url);
         fileInfos.put(id, new FileInfo(
             id,
+            // TODO: is there a good way to remove quotes?
+            url2.substring(1, url2.length() - 1),
             filename,
             Integer.valueOf(String.valueOf(size)),
             Integer.valueOf(String.valueOf(size)),
             String.valueOf(type)
         ));
-        updateView(id);
+        updateExactFileInfo(id);
       }
     }
   }
 
   @Override
   public void onCancel(String id, String filename) {
-    // TODO mark item as cancelled in the list
+    // TODO mark item as cancelled in the list and delete it from server
   }
 
   // original comment said 'return false to cancel submit'?! wtf
   @Override
   public Long onSubmit(String id, String filename) {
     filesInProgress++;
-    fileInfos.put(id, new FileInfo(id, filename, -1, -1, null));
-    updateView(id);
+    fileInfos.put(id, new FileInfo(id, null, filename, -1, -1, null));
+    updateExactFileInfo(id);
     return filesInProgress;
   }
 
@@ -269,7 +292,7 @@ public class FileUploaderBasic extends Widget implements UploadProgressHandlers 
    * @param justAddedId id is required in order not to update the whole table,
    *                    but just the exact row
    */
-  private void updateView(String justAddedId) {
+  private void updateExactFileInfo(String justAddedId) {
     int index = -1;
     for (int i = 0; i < table.getRows().getLength(); i++) {
       final TableRowElement item = table.getRows().getItem(i);
@@ -308,8 +331,14 @@ public class FileUploaderBasic extends Widget implements UploadProgressHandlers 
       final DivElement progressBar = Document.get().createDivElement();
       progressCell.appendChild(progressBar);
     }
-    
-    fileNameCell.setInnerHTML(fileInfo.getName() + formatSize(fileInfo.getTotal()));
+
+    String fileinfo = fileInfo.getName();
+    if (fileInfo.getUrl() != null && !fileInfo.getUrl().isEmpty()) {
+      fileinfo = "<a target=\"_blank\" href=\"" + fileInfo.getUrl() + "\">"
+          + fileInfo.getName()
+          + "</a>";
+    }
+    fileNameCell.setInnerHTML(fileinfo + formatSize(fileInfo.getTotal()));
     updateProgressBar(fileInfo, progressCell);
   }
 
@@ -336,8 +365,12 @@ public class FileUploaderBasic extends Widget implements UploadProgressHandlers 
       div.setInnerText(String.valueOf(fileInfo.getPercentageReady()) + "%");
       div.getStyle().setWidth(fileInfo.getPercentageReady(), Style.Unit.PCT);
     } else if (fileInfo.uploadingHasFinished()) {
-      div.setInnerText(constants.ready());
-      div.getStyle().setWidth(100, Style.Unit.PCT);
+      // this will skip inserting constants.ready()
+      // when doing initial updateView
+      if (!div.getInnerText().isEmpty()) {
+        div.setInnerText(constants.ready());
+        div.getStyle().setWidth(100, Style.Unit.PCT);
+      }
     } else {
       div.setInnerText(constants.uploading());
       div.getStyle().setWidth(100, Style.Unit.PCT);
@@ -348,11 +381,21 @@ public class FileUploaderBasic extends Widget implements UploadProgressHandlers 
     if (bytes == -1) {
       return "";
     }
-    final String s = String.valueOf((double) bytes / 1024 / 1024);
+    final int kbSize = 1024;
+    final int mbSize = kbSize * kbSize;
+
+    boolean mb = false;
+    int divideBy = kbSize;
+    if (bytes > mbSize) {
+      mb = true;
+      divideBy = mbSize;
+    }
+    final String s = String.valueOf((double) bytes / divideBy);
     int endIndex = s.indexOf('.') + 2;
     if (endIndex > s.length()) {
       endIndex = s.length() - 1;
     }
-    return ", " + s.substring(0, endIndex) + " " + constants.sizeMB();
+    return ", " + s.substring(0, endIndex) + " " + (mb ?
+        constants.sizeMB() : constants.sizeKB());
   }
 }

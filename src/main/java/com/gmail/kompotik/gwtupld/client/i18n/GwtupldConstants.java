@@ -17,6 +17,9 @@ public interface GwtupldConstants extends Constants {
   String sizeMB();
 
   @DefaultStringValue("")
+  String sizeKB();
+
+  @DefaultStringValue("")
   String cancel();
 
   @DefaultStringValue("")

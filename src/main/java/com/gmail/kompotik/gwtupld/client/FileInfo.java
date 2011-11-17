@@ -6,14 +6,16 @@ public class FileInfo {
   private int loaded;
   private int total;
   private String type;
+  private String url;
 
-  public FileInfo(String id, String filename, int total, int loaded,
-                  String contentType) {
+  public FileInfo(String id, String url, String filename, int total, int loaded,
+                  String type) {
     this.id = id;
     this.name = filename;
     this.total = total;
     this.loaded = loaded;
-    this.type = contentType;
+    this.type = type;
+    this.url = url;
   }
 
   public String getId() {
@@ -34,6 +36,10 @@ public class FileInfo {
 
   public String getType() {
     return type;
+  }
+
+  public String getUrl() {
+    return url;
   }
 
   public byte getPercentageReady() {

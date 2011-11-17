@@ -9,7 +9,7 @@
 
   <servlet-mapping>
     <servlet-name>upload</servlet-name>
-    <url-pattern>/*</url-pattern>
+    <url-pattern>/upload-servlet/</url-pattern>
   </servlet-mapping>
 
 </web-app>

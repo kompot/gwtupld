@@ -15,6 +15,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -22,6 +23,16 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gson.Gson;
 
 public class UploadServlet extends HttpServlet {
+  private String urlPath;
+  private String realPath;
+
+  @Override
+  public void init(ServletConfig config) throws ServletException {
+    super.init(config);
+    urlPath = "/gwtupld/files/";
+    realPath = "/" + getServletContext().getRealPath("files") + "/";
+  }
+
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
@@ -36,39 +47,41 @@ public class UploadServlet extends HttpServlet {
         "X-File-Size,X-Requested-With,Content-Type");
   }
 
-  protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    setAllowedHeaders(response);
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
+    setAllowedHeaders(resp);
 
-    final PrintWriter writer = response.getWriter();
-    if (request.getContentType().equals("application/octet-stream")) {
+    final PrintWriter writer = resp.getWriter();
+    if (req.getContentType().equals("application/octet-stream")) {
       List<UploadedFile> files = new ArrayList<UploadedFile>();
-      saveOctetStream(request, response, files);
+      saveOctetStream(req, resp, files);
       writer.write(new Gson().toJson(files));
       writer.flush();
       writer.close();
       return;
     }
 
-    if (!ServletFileUpload.isMultipartContent(request)) {
+    if (!ServletFileUpload.isMultipartContent(req)) {
       throw new IllegalArgumentException("Request is not multipart," +
           "please 'multipart/form-data' enctype for your form.");
     }
 
     System.out.println("--- before uploading");
-    ServletFileUpload uploadHandler = new ServletFileUpload(new DiskFileItemFactory());
-    response.setContentType("text/plain");
+    ServletFileUpload sfu = new ServletFileUpload(new DiskFileItemFactory());
+    resp.setContentType("text/plain");
     try {
-      List<FileItem> items = uploadHandler.parseRequest(request);
+      List<FileItem> items = sfu.parseRequest(req);
       List<UploadedFile> files = new ArrayList<UploadedFile>();
       for (FileItem item : items) {
         if (!item.isFormField()) {
-          File file = File.createTempFile(item.getName(), "");
+          File file = new File(realPath + item.getName());
           item.write(file);
-          final UploadedFile uploadedFile = new UploadedFile();
-          uploadedFile.name = item.getName();
-          uploadedFile.size = item.getSize();
-          uploadedFile.type = item.getContentType();
-          uploadedFile.url = file.getAbsolutePath();
+          final UploadedFile uploadedFile = new UploadedFile(
+              item.getName(),
+              (int) item.getSize(),
+              item.getContentType(),
+              file.getAbsolutePath()
+          );
           files.add(uploadedFile);
         }
       }
@@ -84,36 +97,51 @@ public class UploadServlet extends HttpServlet {
   }
 
   @Override
-  protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+  protected void doOptions(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
     setAllowedHeaders(resp);
   }
 
-  private void saveOctetStream(HttpServletRequest request, HttpServletResponse response, List<UploadedFile> files) {
+  private void saveOctetStream(HttpServletRequest request,
+                               HttpServletResponse response,
+                               List<UploadedFile> files) {
     InputStream is = null;
     FileOutputStream fos = null;
 
     String filename = request.getHeader("X-File-Name");
     try {
       is = request.getInputStream();
-      final File tempFile = File.createTempFile(filename, "");
-      fos = new FileOutputStream(tempFile);
+      final File file = new File(realPath + filename);
+      file.getParentFile().mkdirs();
+      fos = new FileOutputStream(file);
       IOUtils.copy(is, fos);
-      final UploadedFile uploadedFile = new UploadedFile();
-      uploadedFile.name = filename;
-      uploadedFile.size = tempFile.length();
+      final UploadedFile uploadedFile = new UploadedFile(
+          filename,
+          (int) file.length(),
+          null,
+          urlPath + filename
+      );
 //      uploadedFile.type = item.getContentType();
-//      uploadedFile.url = tempFile.getPath();
+//      uploadedFile.url = file.getPath();
       files.add(uploadedFile);
       response.setStatus(HttpServletResponse.SC_OK);
     } catch (FileNotFoundException ex) {
       response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+      System.out.println(UploadServlet.class.getName() + "has thrown an exception: " + ex.getMessage());
       log(UploadServlet.class.getName() + "has thrown an exception: " + ex.getMessage());
     } catch (IOException ex) {
       response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+      System.out.println(UploadServlet.class.getName() + "has thrown an exception: " + ex.getMessage());
       log(UploadServlet.class.getName() + "has thrown an exception: " + ex.getMessage());
     } finally {
       IOUtils.closeQuietly(fos);
       IOUtils.closeQuietly(is);
     }
+  }
+
+  @Override
+  protected void doDelete(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
+    super.doDelete(req, resp);
   }
 }

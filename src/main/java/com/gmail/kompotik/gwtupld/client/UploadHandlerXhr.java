@@ -1,13 +1,12 @@
 package com.gmail.kompotik.gwtupld.client;
 
-import com.gmail.kompotik.gwtupld.client.file.File;
-
 import java.util.HashMap;
 import java.util.Map;
 
+import com.gmail.kompotik.gwtupld.client.file.File;
 import com.gmail.kompotik.gwtupld.client.utils.UUID;
-import com.gmail.kompotik.gwtupld.client.xhr.OnUploadProgressHandler;
 import com.gmail.kompotik.gwtupld.client.xhr.OnUploadProgressEvent;
+import com.gmail.kompotik.gwtupld.client.xhr.OnUploadProgressHandler;
 import com.gmail.kompotik.gwtupld.client.xhr.XMLHttpRequestAdvanced;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.json.client.JSONParser;
@@ -70,7 +69,9 @@ public class UploadHandlerXhr extends UploadHandlerAbstract {
       public void onUploadProgress(OnUploadProgressEvent e) {
         if (e.isLengthComputable()) {
           loaded.put(id, e.getLoaded());
-          UploadHandlerXhr.super.progressHandlers.onProgress(id, name, e.getLoaded(), e.getTotal());
+          UploadHandlerXhr.super.progressHandlers.onProgress(
+              id, name, e.getLoaded(), e.getTotal()
+          );
         }
       }
     });
@@ -122,12 +123,13 @@ public class UploadHandlerXhr extends UploadHandlerAbstract {
     String name = getName(id);
     int size = getSize(id);
 
+    // TODO: what is it for within `onComplete`
     progressHandlers.onProgress(id, name, size, size);
 
     JSONValue response = new JSONString("");
+    log("xhr - status is " + xhr.getStatus());
+    log("xhr - response is " + xhr.getResponseText());
     if (xhr.getStatus() == 200) {
-      log("xhr - server response received");
-      log("responseText = " + xhr.getResponseText());
       response = JSONParser.parseStrict(xhr.getResponseText());
     }
     progressHandlers.onComplete(id, name, response);
