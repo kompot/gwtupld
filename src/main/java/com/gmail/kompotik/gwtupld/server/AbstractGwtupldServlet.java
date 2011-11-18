@@ -22,14 +22,12 @@ import com.google.gson.Gson;
 
 public abstract class AbstractGwtupldServlet extends HttpServlet {
   protected abstract UploadedFile saveMultipartFile(FileItem item,
-                                                    HttpServletRequest request,
-                                                    List<UploadedFile> files)
+                                                    HttpServletRequest request)
       throws Exception;
 
   protected abstract UploadedFile saveXhrFile(InputStream is,
                                               FileOutputStream fos,
-                                              HttpServletRequest request,
-                                              List<UploadedFile> files)
+                                              HttpServletRequest request)
       throws IOException;
 
   @Override
@@ -60,7 +58,7 @@ public abstract class AbstractGwtupldServlet extends HttpServlet {
       List<UploadedFile> files = new ArrayList<UploadedFile>();
       for (FileItem item : items) {
         if (!item.isFormField()) {
-          files.add(saveMultipartFile(item, req, files));
+          files.add(saveMultipartFile(item, req));
         }
       }
       writer.write(new Gson().toJson(files));
@@ -82,7 +80,7 @@ public abstract class AbstractGwtupldServlet extends HttpServlet {
 
     try {
       is = request.getInputStream();
-      files.add(saveXhrFile(is, fos, request, files));
+      files.add(saveXhrFile(is, fos, request));
       response.setStatus(HttpServletResponse.SC_OK);
     } catch (FileNotFoundException ex) {
       response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

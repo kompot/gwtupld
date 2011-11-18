@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.List;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -28,8 +27,7 @@ public class UploadServlet extends AbstractGwtupldServlet {
 
   @Override
   protected UploadedFile saveMultipartFile(FileItem item,
-                                           HttpServletRequest req,
-                                           List<UploadedFile> files)
+                                           HttpServletRequest req)
       throws Exception {
     String albumId = getAlbumId(req);
 
@@ -46,10 +44,8 @@ public class UploadServlet extends AbstractGwtupldServlet {
   }
 
   @Override
-  protected UploadedFile saveXhrFile(InputStream is,
-                                     FileOutputStream fos,
-                                     HttpServletRequest req,
-                                     List<UploadedFile> files)
+  protected UploadedFile saveXhrFile(InputStream is, FileOutputStream fos,
+                                     HttpServletRequest req)
       throws IOException {
     String albumId = getAlbumId(req);
 
