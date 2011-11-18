@@ -85,15 +85,16 @@ public class UploadHandlerXhr extends UploadHandlerAbstract {
       }
     });
 
-    // TODO: build query string
     // params = params || {};
     // params['qqfile'] = name;
-    // var queryString = qq.obj2url(params, this._options.action);
-    String queryString = options.getAction();
+    String queryString = appendParamsToAction(
+        options.getAction(),
+        options.getParams()
+    );
     
     xhr.open("POST", queryString);
     xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-    xhr.setRequestHeader("X-File-Name", URL.encodeQueryString(name));
+    xhr.setRequestHeader("X-File-Name", URL.encode(name));
     xhr.setRequestHeader("Content-Type", "application/octet-stream");
     xhr.send(file);
     log("File with id `" + id + "` was just sent to server");

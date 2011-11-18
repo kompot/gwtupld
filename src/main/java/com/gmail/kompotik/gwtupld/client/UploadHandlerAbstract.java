@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.http.client.URL;
 
 public abstract class UploadHandlerAbstract {
   protected Options options;
@@ -110,5 +111,23 @@ public abstract class UploadHandlerAbstract {
     if (options.debug) {
       GWT.log("[uploader] " + s);
     }
+  }
+
+  // TODO: are there any standard methods to do this?
+  /**
+   * Appends parameters to URL
+   * @param url
+   * @param params
+   * @return
+   */
+  protected String appendParamsToAction(String url, Map<String, String> params) {
+    StringBuilder sb = new StringBuilder(url);
+    int i = 0;
+    for (String key : params.keySet()) {
+      sb.append(i == 0 && !url.contains("?") ? "?" : "&");
+      sb.append(key).append("=").append(URL.encodeQueryString(params.get(key)));
+      i++;
+    }
+    return sb.toString();
   }
 }

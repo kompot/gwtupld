@@ -186,9 +186,10 @@ public class UploadHandlerForm extends UploadHandlerAbstract {
     final FormElement form = Document.get().createFormElement();
     form.setMethod("post");
     form.setEnctype("multipart/form-data");
-    // TODO: add params
-    // var queryString = qq.obj2url(params, this._options.action);
-    form.setAction(options.getAction());
+    form.setAction(appendParamsToAction(
+        options.getAction(),
+        options.getParams()
+    ));
     form.setTarget(iframeName);
     form.getStyle().setDisplay(Style.Display.NONE);
     Document.get().getBody().appendChild(form);

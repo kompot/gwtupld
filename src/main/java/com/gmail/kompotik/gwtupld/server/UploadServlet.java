@@ -12,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,11 +51,19 @@ public class UploadServlet extends HttpServlet {
   protected void doPost(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
     setAllowedHeaders(resp);
+    resp.setCharacterEncoding("UTF-8");
+    resp.setHeader("Content-Type", "application/json");
+
+    String albumId = "";
+    if (req.getParameter("albumId") != null) {
+      // testing paramaters passed on submit
+      albumId = URLDecoder.decode(req.getParameter("albumId"), "UTF-8") + "/";
+    }
 
     final PrintWriter writer = resp.getWriter();
     if (req.getContentType().equals("application/octet-stream")) {
       List<UploadedFile> files = new ArrayList<UploadedFile>();
-      saveOctetStream(req, resp, files);
+      saveOctetStream(req, resp, files, albumId);
       writer.write(new Gson().toJson(files));
       writer.flush();
       writer.close();
@@ -66,22 +75,21 @@ public class UploadServlet extends HttpServlet {
           "please 'multipart/form-data' enctype for your form.");
     }
 
-    System.out.println("--- before uploading");
     ServletFileUpload sfu = new ServletFileUpload(new DiskFileItemFactory());
-    resp.setContentType("text/plain");
     try {
       List<FileItem> items = sfu.parseRequest(req);
       List<UploadedFile> files = new ArrayList<UploadedFile>();
       for (FileItem item : items) {
         if (!item.isFormField()) {
-          final String filename = item.getName();
-          File file = new File(realPath + filename);
+          final String filename = URLDecoder.decode(item.getName(), "UTF-8");
+          File file = new File(realPath + albumId + filename);
+          file.getParentFile().mkdirs();
           item.write(file);
           final UploadedFile uploadedFile = new UploadedFile(
               filename,
               (int) item.getSize(),
               item.getContentType(),
-              urlPath + filename
+              urlPath + albumId + filename
           );
           files.add(uploadedFile);
         }
@@ -105,14 +113,15 @@ public class UploadServlet extends HttpServlet {
 
   private void saveOctetStream(HttpServletRequest request,
                                HttpServletResponse response,
-                               List<UploadedFile> files) {
+                               List<UploadedFile> files,
+                               String albumId) {
     InputStream is = null;
     FileOutputStream fos = null;
 
-    String filename = request.getHeader("X-File-Name");
     try {
+      String filename = URLDecoder.decode(request.getHeader("X-File-Name"), "UTF-8");
       is = request.getInputStream();
-      final File file = new File(realPath + filename);
+      final File file = new File(realPath + albumId + filename);
       file.getParentFile().mkdirs();
       fos = new FileOutputStream(file);
       IOUtils.copy(is, fos);
@@ -120,7 +129,7 @@ public class UploadServlet extends HttpServlet {
           filename,
           (int) file.length(),
           null,
-          urlPath + filename
+          urlPath + albumId + filename
       );
 //      uploadedFile.type = item.getContentType();
 //      uploadedFile.url = file.getPath();
