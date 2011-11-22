@@ -95,6 +95,7 @@ task copyIndexHtml(type: Copy) {
 
 task copyGwtXmlSources(type: Copy) {
   from('src/main/java') {
+    include('**/*.properties')
     include('**/*.xml')
     include('**/*.gwt.xml')
     include('**/*.png')

@@ -122,11 +122,13 @@ public abstract class UploadHandlerAbstract {
    */
   protected String appendParamsToAction(String url, Map<String, String> params) {
     StringBuilder sb = new StringBuilder(url);
-    int i = 0;
-    for (String key : params.keySet()) {
-      sb.append(i == 0 && !url.contains("?") ? "?" : "&");
-      sb.append(key).append("=").append(URL.encodeQueryString(params.get(key)));
-      i++;
+    if (params != null) {
+      int i = 0;
+      for (String key : params.keySet()) {
+        sb.append(i == 0 && !url.contains("?") ? "?" : "&");
+        sb.append(key).append("=").append(URL.encodeQueryString(params.get(key)));
+        i++;
+      }
     }
     return sb.toString();
   }
