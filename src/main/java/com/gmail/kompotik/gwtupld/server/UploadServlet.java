@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
@@ -44,7 +45,7 @@ public class UploadServlet extends AbstractGwtupldServlet {
   }
 
   @Override
-  protected UploadedFile saveXhrFile(InputStream is, FileOutputStream fos,
+  protected UploadedFile saveXhrFile(InputStream is, OutputStream os,
                                      HttpServletRequest req)
       throws IOException {
     String albumId = getAlbumId(req);
@@ -52,8 +53,8 @@ public class UploadServlet extends AbstractGwtupldServlet {
     String filename = URLDecoder.decode(req.getHeader("X-File-Name"), "UTF-8");
     final File file = new File(realPath + albumId + filename);
     file.getParentFile().mkdirs();
-    fos = new FileOutputStream(file);
-    IOUtils.copy(is, fos);
+    os = new FileOutputStream(file);
+    IOUtils.copy(is, os);
 
     //      uploadedFile.type = item.getContentType();
     //      uploadedFile.url = file.getPath();

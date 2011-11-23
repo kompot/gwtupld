@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +27,7 @@ public abstract class AbstractGwtupldServlet extends HttpServlet {
       throws Exception;
 
   protected abstract UploadedFile saveXhrFile(InputStream is,
-                                              FileOutputStream fos,
+                                              OutputStream os,
                                               HttpServletRequest request)
       throws IOException;
 
