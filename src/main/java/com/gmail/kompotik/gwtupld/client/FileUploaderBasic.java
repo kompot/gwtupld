@@ -108,6 +108,10 @@ public class FileUploaderBasic extends Widget implements UploadProgressHandlers 
     return fileInfos;
   }
 
+  public Options getOptions() {
+    return options;
+  }
+
   private FileInputElement createUploadButton(DivElement container) {
     if (uploadButton != null) {
       uploadButton.reset();
