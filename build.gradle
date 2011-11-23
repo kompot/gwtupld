@@ -6,7 +6,7 @@ apply plugin: 'jetty'
 
 archivesBaseName = 'gwtupld'
 group = 'com.gmail.kompotik'
-version = '0.0.3'
+version = '0.0.4'
 
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
