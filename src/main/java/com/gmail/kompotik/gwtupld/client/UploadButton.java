@@ -1,14 +1,14 @@
 package com.gmail.kompotik.gwtupld.client;
 
-import com.google.gwt.dom.client.DivElement;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style;
 
 public class UploadButton {
   private FileInputElement input;
-  private DivElement container;
+  private Element container;
   private boolean multiple;
 
-  public UploadButton(DivElement container, boolean multiple) {
+  public UploadButton(Element container, boolean multiple) {
     this.container = container;
     this.multiple = multiple;
     container.getStyle().setPosition(Style.Position.RELATIVE);
