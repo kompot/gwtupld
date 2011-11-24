@@ -92,7 +92,7 @@ public abstract class UploadHandlerAbstract {
     final int i = queue.indexOf(id);
     queue.remove(i);
 
-    final byte max = options.getMaxConnections();
+    final int max = options.getMaxConnections();
     if (queue.size() >= max && i < max) {
       String nextId = queue.get(max - 1);
       this._upload(nextId, params.get(nextId));

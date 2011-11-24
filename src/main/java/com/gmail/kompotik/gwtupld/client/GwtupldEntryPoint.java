@@ -14,7 +14,7 @@ public class GwtupldEntryPoint implements EntryPoint {
     Map<String, String> params = new HashMap<String, String>();
     params.put("albumId", "666");
     final FileUploaderBasic fileUploaderBasic = new FileUploaderBasic(
-        new Options(null, params, null, null, null,
+        new Options(null, params, null, null, -1,
             Arrays.asList("JPG", "png"), 3000, 1024 * 1024 * 2)
     );
     RootPanel.get().add(fileUploaderBasic);

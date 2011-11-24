@@ -1,6 +1,7 @@
 package com.gmail.kompotik.gwtupld.client;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,7 +12,7 @@ public class Options {
   private final String action;
   private final Map<String, String> params;
   private final boolean multiple;
-  private final Byte maxConnections;
+  private final int maxConnections;
   private final List<String> allowedExtensions;
   private final int maxSize;
   private final int minSize;
@@ -21,7 +22,7 @@ public class Options {
    * @param action url to post form to; if null or empty debug mode is turned on
    */
   public Options(String action) {
-    this(action, null, null, null, null, null, null, null);
+    this(action, null, null, null, 0, null, null, null);
   }
   
   /**
@@ -37,7 +38,7 @@ public class Options {
    * @param maxSize maximum file size allowed
    */
   public Options(String action, Map<String, String> params, Boolean forceIframe,
-                 Boolean multiple, Byte maxConnections,
+                 Boolean multiple, int maxConnections,
                  List<String> allowedExtensions, Integer minSize,
                  Integer maxSize) {
     debug = action == null || action.isEmpty();
@@ -47,9 +48,9 @@ public class Options {
         "http://" + Window.Location.getHostName() + ":"
             + (Window.Location.getPort().equals("8081") ? "8080" : "8082")
             + "/gwtupld/upload-servlet/";
-    this.params = params;
-    this.multiple = multiple != null ? multiple : false;
-    this.maxConnections = maxConnections != null ? maxConnections : 3;
+    this.params = params != null ? params : new HashMap<String, String>();
+    this.multiple = multiple != null ? multiple : true;
+    this.maxConnections = maxConnections > 0 ? maxConnections : 3;
     this.minSize = minSize != null ? minSize : -1;
     this.maxSize = maxSize != null ? maxSize : -1;
     this.forceIframe = forceIframe != null ? forceIframe : false;
@@ -84,7 +85,7 @@ public class Options {
     return multiple;
   }
 
-  public byte getMaxConnections() {
+  public int getMaxConnections() {
     return maxConnections;
   }
 

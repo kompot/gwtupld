@@ -92,10 +92,16 @@ public class FileUploaderBasic extends Widget implements UploadProgressHandlers 
   }
 
   public void updateView(List<FileInfo> files) {
-    for (FileInfo file : files) {
-      final String uuid = UUID.uuid();
-      fileInfos.put(uuid, file);
-      updateExactFileInfo(uuid);
+    fileInfos.clear();
+    while (table.getRows().getLength() > 0) {
+      table.getRows().getItem(0).removeFromParent();
+    }
+    if (files != null) {
+      for (FileInfo file : files) {
+        final String uuid = UUID.uuid();
+        fileInfos.put(uuid, file);
+        updateExactFileInfo(uuid);
+      }
     }
   }
 
