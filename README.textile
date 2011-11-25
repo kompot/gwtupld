@@ -11,15 +11,15 @@ h3. Features
 * XHR file upload in ...
 * Fallback to hidden iframe for all others
 * Doesn't require Flash or anything but GWT
+* File size & extension verification
+* Able to append parameters along with file upload
+* State retention - set files on load
 
 h3. To be implemented
 
-* State retention - set files on load
 * Delete button for files stored on server (that are set
   via state retention mechanism)
 * Cancel button for XHR uploads
-* File size & extension verification
-* Append parameters when submitting file
 
 h3. Developing and testing
 
@@ -27,20 +27,17 @@ This component is based on code of `file-uploader` project.
 https://github.com/valums/file-uploader
 Basically it is just a rewriting of it to GWT.
 
-All you need to test it locally is to run the following command
-
-<pre>
-gradlew devmode
-</pre>
-
-type
+All you need to run it locally is to use the following command
 
 <pre>
 gradlew gwtcompile devmode
 </pre>
 
-to be able to test it in those browsers that do not have GWT developer plugin
-available.
+If you are using GWT developer plugin and it's not the first run then use just
+
+<pre>
+gradlew devmode
+</pre>
 
 There is a servlet (UploadServlet) available for testing that will save uploaded
 files to temp directory. So feel free to test and debug.
