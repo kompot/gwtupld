@@ -34,6 +34,7 @@ public class FileUploaderBasic extends FileUploader
 
   @UiField TableElement table;
   @UiField DivElement dropZoneAndButtonContainer;
+  @UiField DivElement totalProgress;
 
   public FileUploaderBasic(Options options) {
     super(options);
@@ -77,6 +78,12 @@ public class FileUploaderBasic extends FileUploader
 
   @Override
   protected void updateExactFileInfo(String justAddedId) {
+    if (filesDueToUpload() > 0) {
+      totalProgress.setInnerHTML("Uploaded " +
+          filesUploaded() + " of " + filesDueToUpload()
+              + ", total progress is " + totalProgress() + "%"
+      );
+    }
     int index = -1;
     for (int i = 0; i < table.getRows().getLength(); i++) {
       final TableRowElement item = table.getRows().getItem(i);

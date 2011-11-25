@@ -28,7 +28,7 @@ public class GwtupldEntryPoint implements EntryPoint {
     List<FileInfo> files = new ArrayList<FileInfo>();
     files.add(new FileInfo("complex-unique-id-identifying-file-unambiguously",
         "/gwtupld/files/rospil.png", "rospil.png", 6905, 6905, "image/png",
-        null));
+        null, true));
     fileUploaderBasic.updateView(files);
   }
 }

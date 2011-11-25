@@ -34,11 +34,15 @@
       background-color: #DEE7FF;
       padding: .3em 0;
     }
+    div.totalProgress {
+      margin: 1em 0;
+    }
   </ui:style>
   <div>
     <div class="{style.dropzone}" ui:field="dropZoneAndButtonContainer">
       Drop files here or click to attach
     </div>
+    <div ui:field="totalProgress" class="{style.totalProgress}" />
     <table ui:field="table" class="{style.data}">
     </table>
   </div>

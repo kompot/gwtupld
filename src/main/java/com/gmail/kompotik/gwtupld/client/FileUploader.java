@@ -319,7 +319,8 @@ public abstract class FileUploader extends Widget
             Integer.valueOf(String.valueOf(size)),
             Integer.valueOf(String.valueOf(size)),
             String.valueOf(type),
-            null));
+            null,
+            false));
         updateExactFileInfo(id);
         filesInProgress--;
         if (filesInProgress == 0) {
@@ -352,13 +353,13 @@ public abstract class FileUploader extends Widget
   }
 
   private void addFileToList(String id, String filename, int size, String error) {
-    fileInfos.put(id, new FileInfo(id, null, filename, size, -1, null, error));
+    fileInfos.put(id, new FileInfo(id, null, filename, size, -1, null, error, false));
     updateExactFileInfo(id);
   }
 
   @Override
   public void onProgress(String id, String filename, int loaded, int total) {
-    fileInfos.put(id, new FileInfo(id, null, filename, total, loaded, null, null));
+    fileInfos.put(id, new FileInfo(id, null, filename, total, loaded, null, null, false));
     updateExactFileInfo(id);
   }
 
@@ -374,5 +375,50 @@ public abstract class FileUploader extends Widget
         initAddFileInfo(file);
       }
     }
+  }
+
+  /**
+   * Gets total number of files to be uploaded.
+   * Excluding those ones having error.
+   *
+   * @return total number of files to be uploaded
+   */
+  protected int filesDueToUpload() {
+    int result = 0;
+    for (FileInfo fileInfo : fileInfos.values()) {
+      if (fileInfo.dueToUpload()) {
+        result++;
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Gets total number of files already uploaded.
+   *
+   * @return total number of files already uploaded
+   */
+  protected int filesUploaded() {
+    int result = 0;
+    for (FileInfo fileInfo : fileInfos.values()) {
+      if (fileInfo.dueToUpload() && fileInfo.uploadingHasFinished()) {
+        result++;
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Calculates total progress of all the files being uploaded
+   * @return total progress of all the files being uploaded
+   */
+  protected int totalProgress() {
+    int result = 0;
+    for (FileInfo fileInfo : fileInfos.values()) {
+      if (fileInfo.dueToUpload()) {
+        result += fileInfo.getPercentageReady();
+      }
+    }
+    return result / filesDueToUpload();
   }
 }

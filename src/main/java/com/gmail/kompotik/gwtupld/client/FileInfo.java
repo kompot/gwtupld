@@ -8,9 +8,23 @@ public class FileInfo {
   private String type;
   private String url;
   private String error;
+  private boolean setOnLoad;
 
+  /**
+   *
+   * @param id
+   * @param url
+   * @param filename
+   * @param total
+   * @param loaded
+   * @param type
+   * @param error
+   * @param setOnLoad Used to indicate whether this instance should be used
+   *                  when calculating upload progress. Should be used when
+   *                  setting up file list in component initialization.
+   */
   public FileInfo(String id, String url, String filename, int total, int loaded,
-                  String type, String error) {
+                   String type, String error, boolean setOnLoad) {
     this.id = id;
     this.name = filename;
     this.total = total;
@@ -18,6 +32,7 @@ public class FileInfo {
     this.type = type;
     this.url = url;
     this.error = error;
+    this.setOnLoad = setOnLoad;
   }
 
   public String getId() {
@@ -46,6 +61,10 @@ public class FileInfo {
 
   public String getError() {
     return error;
+  }
+
+  public boolean dueToUpload() {
+    return !setOnLoad && (getError() == null || getError().isEmpty());
   }
 
   public byte getPercentageReady() {
