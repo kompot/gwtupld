@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.gmail.kompotik.gwtupld.client.events.UploadingCompletedEvent;
+import com.gmail.kompotik.gwtupld.client.events.UploadingCompletedEventHandler;
 import com.gmail.kompotik.gwtupld.client.file.File;
 import com.gmail.kompotik.gwtupld.client.file.FileList;
 import com.gmail.kompotik.gwtupld.client.i18n.GwtupldMessages;
@@ -23,17 +25,22 @@ import com.google.gwt.event.dom.client.DragOverEvent;
 import com.google.gwt.event.dom.client.DragOverHandler;
 import com.google.gwt.event.dom.client.DropEvent;
 import com.google.gwt.event.dom.client.DropHandler;
+import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.event.shared.HandlerManager;
+import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.event.shared.HasHandlers;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.ui.Widget;
 
 public abstract class FileUploader extends Widget
-    implements UploadProgressHandlers {
+    implements UploadProgressHandlers, HasHandlers {
+  private HandlerManager handlerManager;
   private UploadButton uploadButton;
   private InputElement fileInput;
   private Options options;
-  private Long filesInProgress = 0L;
+  private int filesInProgress = 0;
   protected UploadHandlerAbstract uploadHandler;
   protected Map<String, FileInfo> fileInfos;
   protected final GwtupldMessages messages;
@@ -53,11 +60,23 @@ public abstract class FileUploader extends Widget
   public abstract void updateView(List<FileInfo> files);
 
   public FileUploader(Options options) {
+    handlerManager = new HandlerManager(this);
     this.options = options;
     fileInfos = new HashMap<String, FileInfo>();
     messages = (GwtupldMessages) GWT.create(GwtupldMessages.class);
 
     uploadHandler = createUploadHandler();
+  }
+
+  @Override
+  public void fireEvent(GwtEvent<?> event) {
+    handlerManager.fireEvent(event);
+    super.fireEvent(event);
+  }
+
+  public HandlerRegistration addUploadingCompletedEventHandler(
+      UploadingCompletedEventHandler handler) {
+    return handlerManager.addHandler(UploadingCompletedEvent.TYPE, handler);
   }
 
   @Override
@@ -302,6 +321,10 @@ public abstract class FileUploader extends Widget
             String.valueOf(type),
             null));
         updateExactFileInfo(id);
+        filesInProgress--;
+        if (filesInProgress == 0) {
+          fireEvent(new UploadingCompletedEvent());
+        }
       }
     }
   }
@@ -322,7 +345,7 @@ public abstract class FileUploader extends Widget
 
   // original comment said 'return false to cancel submit'?! wtf
   @Override
-  public Long onSubmit(String id, String filename) {
+  public int onSubmit(String id, String filename) {
     filesInProgress++;
     addFileToList(id, filename, -1, null);
     return filesInProgress;

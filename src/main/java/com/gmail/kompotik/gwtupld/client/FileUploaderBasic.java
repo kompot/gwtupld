@@ -2,6 +2,8 @@ package com.gmail.kompotik.gwtupld.client;
 
 import java.util.List;
 
+import com.gmail.kompotik.gwtupld.client.events.UploadingCompletedEvent;
+import com.gmail.kompotik.gwtupld.client.events.UploadingCompletedEventHandler;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.DivElement;
 import com.google.gwt.dom.client.Document;
@@ -17,7 +19,8 @@ import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 
-public class FileUploaderBasic extends FileUploader {
+public class FileUploaderBasic extends FileUploader
+    implements UploadingCompletedEventHandler {
   interface Binder extends UiBinder<DivElement, FileUploaderBasic> {}
   private static Binder binder = GWT.create(Binder.class);
 
@@ -35,6 +38,7 @@ public class FileUploaderBasic extends FileUploader {
   public FileUploaderBasic(Options options) {
     super(options);
     setElement(binder.createAndBindUi(this));
+    addUploadingCompletedEventHandler(this);
   }
 
   @Override
@@ -163,5 +167,10 @@ public class FileUploaderBasic extends FileUploader {
       );
       div.getStyle().setWidth(100, Style.Unit.PCT);
     }
+  }
+
+  @Override
+  public void onUploadingCompleted(UploadingCompletedEvent event) {
+    GWT.log("uploading completed");
   }
 }
