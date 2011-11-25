@@ -28,6 +28,7 @@ public class FileUploaderList extends FileUploader {
   public FileUploaderList(Options options) {
     super(options);
     setElement(binder.createAndBindUi(this));
+    initialize();
   }
 
   @Override

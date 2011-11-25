@@ -39,6 +39,7 @@ public class FileUploaderBasic extends FileUploader
   public FileUploaderBasic(Options options) {
     super(options);
     setElement(binder.createAndBindUi(this));
+    initialize();
     addUploadingCompletedEventHandler(this);
   }
 

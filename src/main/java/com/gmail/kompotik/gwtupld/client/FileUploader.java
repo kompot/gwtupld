@@ -79,8 +79,11 @@ public abstract class FileUploader extends Widget
     return handlerManager.addHandler(UploadingCompletedEvent.TYPE, handler);
   }
 
-  @Override
-  protected void onLoad() {
+  /**
+   * Must be called after Binder.createAndBindUi.
+   * How to ensure that it was actually called from a subclass?
+   */
+  protected final void initialize() {
     getDropZone().setInnerText(
         options.useAdvancedUploader() ?
         messages.welcomeXhr() :
@@ -306,6 +309,10 @@ public abstract class FileUploader extends Widget
     if (response.isArray() != null) {
       JSONArray array = (JSONArray) response;
       for (int i = 0; i < array.size(); i++) {
+        filesInProgress--;
+        if (filesInProgress == 0) {
+          fireEvent(new UploadingCompletedEvent());
+        }
         final JSONObject value = (JSONObject) array.get(i);
         final JSONValue size = value.get("size");
         final JSONValue url = value.get("url");
@@ -322,10 +329,6 @@ public abstract class FileUploader extends Widget
             null,
             false));
         updateExactFileInfo(id);
-        filesInProgress--;
-        if (filesInProgress == 0) {
-          fireEvent(new UploadingCompletedEvent());
-        }
       }
     }
   }

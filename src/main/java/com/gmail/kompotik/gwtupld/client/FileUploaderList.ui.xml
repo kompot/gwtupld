@@ -18,7 +18,8 @@
   </ui:style>
   <div>
     <div class="{style.dropzone}" ui:field="dropZoneAndButtonContainer">
-      Drop files here or click to attach
+      Method `Initialize` of `FileUploader` has not been
+      called from a subclass constructor
     </div>
     <ul ui:field="list" />
   </div>
