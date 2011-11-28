@@ -327,7 +327,7 @@ public abstract class FileUploader extends Widget
             Integer.valueOf(String.valueOf(size)),
             String.valueOf(type),
             null,
-            false));
+            false, value));
         updateExactFileInfo(id);
       }
     }
@@ -356,13 +356,13 @@ public abstract class FileUploader extends Widget
   }
 
   private void addFileToList(String id, String filename, int size, String error) {
-    fileInfos.put(id, new FileInfo(id, null, filename, size, -1, null, error, false));
+    fileInfos.put(id, new FileInfo(id, null, filename, size, -1, null, error, false, null));
     updateExactFileInfo(id);
   }
 
   @Override
   public void onProgress(String id, String filename, int loaded, int total) {
-    fileInfos.put(id, new FileInfo(id, null, filename, total, loaded, null, null, false));
+    fileInfos.put(id, new FileInfo(id, null, filename, total, loaded, null, null, false, null));
     updateExactFileInfo(id);
   }
 

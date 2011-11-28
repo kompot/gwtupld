@@ -1,5 +1,7 @@
 package com.gmail.kompotik.gwtupld.client;
 
+import com.google.gwt.json.client.JSONObject;
+
 public class FileInfo {
   private String id;
   private String name;
@@ -9,6 +11,7 @@ public class FileInfo {
   private String url;
   private String error;
   private boolean setOnLoad;
+  private JSONObject value;
 
   /**
    *
@@ -20,11 +23,13 @@ public class FileInfo {
    * @param type
    * @param error
    * @param setOnLoad Used to indicate whether this instance should be used
-   *                  when calculating upload progress. Should be used when
-   *                  setting up file list in component initialization.
+*                  when calculating upload progress. Should be used when
+   * @param value json value of a server response; by using this parameter it's
+   *              easy to add extra properties to file infos (e. g. add width
+   *              and height for images)
    */
   public FileInfo(String id, String url, String filename, int total, int loaded,
-                   String type, String error, boolean setOnLoad) {
+                  String type, String error, boolean setOnLoad, JSONObject value) {
     this.id = id;
     this.name = filename;
     this.total = total;
@@ -33,6 +38,7 @@ public class FileInfo {
     this.url = url;
     this.error = error;
     this.setOnLoad = setOnLoad;
+    this.value = value;
   }
 
   public String getId() {
@@ -61,6 +67,10 @@ public class FileInfo {
 
   public String getError() {
     return error;
+  }
+
+  public JSONObject getValue() {
+    return value;
   }
 
   public boolean dueToUpload() {
