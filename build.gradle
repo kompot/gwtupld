@@ -5,8 +5,8 @@ apply plugin: 'idea'
 apply plugin: 'jetty'
 
 archivesBaseName = 'gwtupld'
-group = 'com.gmail.kompotik'
-version = '0.0.7'
+group = 'ru.artlebedev'
+version = '0.0.8'
 
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
@@ -56,7 +56,7 @@ task gwtCompile() << { task ->
 //    arg(line: '-style PRETTY')
     arg(line: '-localWorkers 4')
 //    arg(line: '-treeLogger')
-    arg(value: 'com.gmail.kompotik.' + archivesBaseName + '.GwtupldDevMode')
+    arg(value: 'ru.artlebedev.' + archivesBaseName + '.GwtupldDevMode')
     classpath {
       pathElement(location: "src/main/java")
       pathElement(path: configurations.compile.asPath)
@@ -75,7 +75,7 @@ task devmode() << {
     // uncomment to bind to all IPs, not just 127.0.0.1
     // useful for debugging in a virtualized OS
     // arg(line: '-bindAddress 0.0.0.0')
-    arg(value: 'com.gmail.kompotik.' + archivesBaseName + '.GwtupldDevMode')
+    arg(value: 'ru.artlebedev.' + archivesBaseName + '.GwtupldDevMode')
     classpath {
       pathElement(location: "src/main/java")
       pathElement(path: configurations.compile.asPath)

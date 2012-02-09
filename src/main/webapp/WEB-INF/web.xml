@@ -4,7 +4,7 @@
 
   <servlet>
     <servlet-name>upload</servlet-name>
-    <servlet-class>com.gmail.kompotik.gwtupld.server.UploadServlet</servlet-class>
+    <servlet-class>ru.artlebedev.gwtupld.server.UploadServlet</servlet-class>
   </servlet>
 
   <servlet-mapping>

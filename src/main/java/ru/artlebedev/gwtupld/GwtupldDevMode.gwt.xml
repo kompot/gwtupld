@@ -1,0 +1,4 @@
+<module rename-to='gwtupld'>
+  <inherits name="ru.artlebedev.gwtupld.Gwtupld"/>
+  <entry-point class="ru.artlebedev.gwtupld.client.GwtupldEntryPoint"/>
+</module>
