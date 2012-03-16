@@ -1,9 +1,12 @@
 package ru.artlebedev.gwtupld.client;
 
-import java.util.List;
-
+import ru.artlebedev.gwtupld.client.events.FileUploadingCompletedEvent;
+import ru.artlebedev.gwtupld.client.events.FileUploadingCompletedEventHandler;
 import ru.artlebedev.gwtupld.client.events.UploadingCompletedEvent;
 import ru.artlebedev.gwtupld.client.events.UploadingCompletedEventHandler;
+
+import java.util.List;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.DivElement;
 import com.google.gwt.dom.client.Document;
@@ -20,7 +23,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 
 public class FileUploaderBasic extends FileUploader
-    implements UploadingCompletedEventHandler {
+    implements UploadingCompletedEventHandler, FileUploadingCompletedEventHandler {
   interface Binder extends UiBinder<DivElement, FileUploaderBasic> {}
   private static Binder binder = GWT.create(Binder.class);
 
@@ -41,6 +44,7 @@ public class FileUploaderBasic extends FileUploader
     setElement(binder.createAndBindUi(this));
     initialize();
     addUploadingCompletedEventHandler(this);
+    addFileUploadingCompletedEventHandler(this);
   }
 
   @Override
@@ -180,5 +184,10 @@ public class FileUploaderBasic extends FileUploader
   @Override
   public void onUploadingCompleted(UploadingCompletedEvent event) {
     GWT.log("uploading completed");
+  }
+
+  @Override
+  public void onFileUploadingCompleted(FileUploadingCompletedEvent event) {
+    GWT.log("file uploading completed");
   }
 }

@@ -1,9 +1,7 @@
 package ru.artlebedev.gwtupld.client;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import ru.artlebedev.gwtupld.client.events.FileUploadingCompletedEvent;
+import ru.artlebedev.gwtupld.client.events.FileUploadingCompletedEventHandler;
 import ru.artlebedev.gwtupld.client.events.UploadingCompletedEvent;
 import ru.artlebedev.gwtupld.client.events.UploadingCompletedEventHandler;
 import ru.artlebedev.gwtupld.client.file.File;
@@ -11,6 +9,11 @@ import ru.artlebedev.gwtupld.client.file.FileList;
 import ru.artlebedev.gwtupld.client.i18n.GwtupldMessages;
 import ru.artlebedev.gwtupld.client.utils.UUID;
 import ru.artlebedev.gwtupld.client.xhr.DataTransferAdvanced;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.EventTarget;
@@ -77,6 +80,11 @@ public abstract class FileUploader extends Widget
   public HandlerRegistration addUploadingCompletedEventHandler(
       UploadingCompletedEventHandler handler) {
     return handlerManager.addHandler(UploadingCompletedEvent.TYPE, handler);
+  }
+
+  public HandlerRegistration addFileUploadingCompletedEventHandler(
+      FileUploadingCompletedEventHandler handler) {
+    return handlerManager.addHandler(FileUploadingCompletedEvent.TYPE, handler);
   }
 
   /**
@@ -310,15 +318,12 @@ public abstract class FileUploader extends Widget
       JSONArray array = (JSONArray) response;
       for (int i = 0; i < array.size(); i++) {
         filesInProgress--;
-        if (filesInProgress == 0) {
-          fireEvent(new UploadingCompletedEvent());
-        }
         final JSONObject value = (JSONObject) array.get(i);
         final JSONValue size = value.get("size");
         final JSONValue url = value.get("url");
         final JSONValue type = value.get("type");
         final String url2 = String.valueOf(url);
-        fileInfos.put(id, new FileInfo(
+        final FileInfo fi = new FileInfo(
             id,
             // TODO: is there a good way to remove quotes?
             url2.substring(1, url2.length() - 1),
@@ -327,8 +332,13 @@ public abstract class FileUploader extends Widget
             Integer.valueOf(String.valueOf(size)),
             String.valueOf(type),
             null,
-            false, value));
+            false, value);
+        fileInfos.put(id, fi);
         updateExactFileInfo(id);
+        fireEvent(new FileUploadingCompletedEvent(fi));
+        if (filesInProgress == 0) {
+          fireEvent(new UploadingCompletedEvent());
+        }
       }
     }
   }
