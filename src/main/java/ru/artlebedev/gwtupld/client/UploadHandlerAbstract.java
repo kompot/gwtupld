@@ -1,5 +1,7 @@
 package ru.artlebedev.gwtupld.client;
 
+import ru.artlebedev.gwtupld.client.i18n.GwtupldMessages;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,12 +9,14 @@ import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.URL;
+import com.google.gwt.user.client.Window;
 
 public abstract class UploadHandlerAbstract {
   protected Options options;
   private List<String> queue;
   protected Map<String, Map<String, String>> params;
   protected UploadProgressHandlers progressHandlers;
+  protected final GwtupldMessages messages = (GwtupldMessages) GWT.create(GwtupldMessages.class);
 
   /**
    * Adds file or file input to the queue
@@ -132,5 +136,9 @@ public abstract class UploadHandlerAbstract {
       }
     }
     return sb.toString();
+  }
+
+  protected void showError(String message) {
+    Window.alert(message);
   }
 }

@@ -106,7 +106,11 @@ public class UploadHandlerForm extends UploadHandlerAbstract {
   private void onComplete(final Frame iframe, String id, String fileName) {
     log("Iframe loaded; file with id `" + id + "` has been successfully uploaded");
     final JSONValue jsonValue = _getIframeContentJSON(iframe);
-    progressHandlers.onComplete(id, fileName, jsonValue);
+    if (jsonValue == null) {
+      showError(messages.errorUploadingFile(fileName));
+    } else {
+      progressHandlers.onComplete(id, fileName, jsonValue);
+    }
     _dequeue(id);
     inputs.remove(id);
     // timeout added to fix busy state in FF3.6
@@ -121,8 +125,13 @@ public class UploadHandlerForm extends UploadHandlerAbstract {
   
   private JSONValue _getIframeContentJSON(Frame iframe) {
     final FrameElement frameElement = (FrameElement)iframe.getElement().cast();
+    Document contentDocument = frameElement.getContentDocument();
+    if (contentDocument == null) {
+      // probably error on server has happened
+      return null;
+    }
     return JSONParser.parseStrict(
-        frameElement.getContentDocument().getBody().getInnerText()
+        contentDocument.getBody().getInnerText()
     );
   }
 

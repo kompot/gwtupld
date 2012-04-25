@@ -30,6 +30,9 @@ public class UploadServlet extends AbstractGwtupldServlet {
   protected UploadedFile saveMultipartFile(FileItem item,
                                            HttpServletRequest req)
       throws Exception {
+    // uncomment this to test what would happen in case of exception
+    // throw new RuntimeException("Some possible exception on server");
+
     String albumId = getAlbumId(req);
 
     final String filename = URLDecoder.decode(item.getName(), "UTF-8");
@@ -54,6 +57,10 @@ public class UploadServlet extends AbstractGwtupldServlet {
     final File file = new File(realPath + albumId + filename);
     file.getParentFile().mkdirs();
     os = new FileOutputStream(file);
+
+    // uncomment this to test what would happen in case of exception
+    // throw new RuntimeException("Some possible exception on server");
+
     IOUtils.copy(is, os);
 
     //      uploadedFile.type = item.getContentType();

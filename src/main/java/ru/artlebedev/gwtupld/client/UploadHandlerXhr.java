@@ -132,8 +132,10 @@ public class UploadHandlerXhr extends UploadHandlerAbstract {
     log("xhr - response is " + xhr.getResponseText());
     if (xhr.getStatus() == 200) {
       response = JSONParser.parseStrict(xhr.getResponseText());
+      progressHandlers.onComplete(id, name, response);
+    } else {
+      showError(messages.errorUploadingFile(name));
     }
-    progressHandlers.onComplete(id, name, response);
 
     files.remove(id);
     xhr.clearOnReadyStateChange();

@@ -28,4 +28,6 @@ public interface GwtupldMessages extends Messages {
   String fileIsTooSmall(String minSize);
   @DefaultMessage("{0}")
   String fileIsTooLarge(String minSize);
+  @DefaultMessage("{0}")
+  String errorUploadingFile(String fileName);
 }
