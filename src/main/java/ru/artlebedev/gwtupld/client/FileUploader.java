@@ -46,7 +46,7 @@ public abstract class FileUploader extends Widget
   private int filesInProgress = 0;
   protected UploadHandlerAbstract uploadHandler;
   protected Map<String, FileInfo> fileInfos;
-  protected final GwtupldMessages messages;
+  protected GwtupldMessages messages;
 
   protected abstract Element getDropZone();
   /**
@@ -92,7 +92,7 @@ public abstract class FileUploader extends Widget
    * How to ensure that it was actually called from a subclass?
    */
   protected final void initialize() {
-    getDropZone().setInnerText(
+    getDropZone().setInnerHTML(
         options.useAdvancedUploader() ?
         messages.welcomeXhr() :
         messages.welcomeIframe()
