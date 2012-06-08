@@ -33,7 +33,7 @@ public class Options {
    *                 forceIframe is true)
    * @param maxConnections maxumum number of simultaneous file uploads
    * @param allowedExtensions extensions allowed to be uploaded
-*                          case insensitive
+   *                          case insensitive
    * @param minSize minimum file size allowed
    * @param maxSize maximum file size allowed
    */

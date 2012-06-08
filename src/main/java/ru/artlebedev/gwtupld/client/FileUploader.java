@@ -43,6 +43,7 @@ public abstract class FileUploader extends Widget
   private UploadButton uploadButton;
   private InputElement fileInput;
   private Options options;
+  // what is it for? why not use Queue from UploadHandler
   private int filesInProgress = 0;
   protected UploadHandlerAbstract uploadHandler;
   protected Map<String, FileInfo> fileInfos;
@@ -313,6 +314,11 @@ public abstract class FileUploader extends Widget
   }
 
   @Override
+  public void onCancel(String id, String filename) {
+    fireUploadCompletedIfRequired();
+  }
+
+  @Override
   public void onComplete(String id, String filename, JSONValue response) {
     if (response.isArray() != null) {
       JSONArray array = (JSONArray) response;
@@ -335,11 +341,16 @@ public abstract class FileUploader extends Widget
             false, value);
         fileInfos.put(id, fi);
         updateExactFileInfo(id);
+        uploadHandler._dequeue(id);
         fireEvent(new FileUploadingCompletedEvent(fi));
-        if (filesInProgress == 0) {
-          fireEvent(new UploadingCompletedEvent());
-        }
+        fireUploadCompletedIfRequired();
       }
+    }
+  }
+
+  private void fireUploadCompletedIfRequired() {
+    if (filesInProgress == 0 || uploadHandler.getQueue().isEmpty()) {
+      fireEvent(new UploadingCompletedEvent());
     }
   }
 

@@ -1,18 +1,25 @@
 package ru.artlebedev.gwtupld.client;
 
+import ru.artlebedev.gwtupld.client.events.UploadingCompletedEvent;
+import ru.artlebedev.gwtupld.client.events.UploadingCompletedEventHandler;
+
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.ButtonElement;
 import com.google.gwt.dom.client.DivElement;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.LIElement;
 import com.google.gwt.dom.client.UListElement;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 
-public class FileUploaderList extends FileUploader {
+public class FileUploaderList extends FileUploader
+    implements UploadingCompletedEventHandler {
   interface Binder extends UiBinder<DivElement, FileUploaderList> {}
   private static Binder binder = GWT.create(Binder.class);
 
@@ -24,11 +31,22 @@ public class FileUploaderList extends FileUploader {
 
   @UiField UListElement list;
   @UiField DivElement dropZoneAndButtonContainer;
+  @UiField ButtonElement cancel;
 
   public FileUploaderList(Options options) {
     super(options);
     setElement(binder.createAndBindUi(this));
+    addDomHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        Element el = Element.as(event.getNativeEvent().getEventTarget());
+        if (el == cancel) {
+          uploadHandler.cancelAll();
+        }
+      }
+    }, ClickEvent.getType());
     initialize();
+    addUploadingCompletedEventHandler(this);
   }
 
   @Override
@@ -60,10 +78,6 @@ public class FileUploaderList extends FileUploader {
   }
 
   @Override
-  public void onCancel(String id, String filename) {
-  }
-
-  @Override
   protected void updateExactFileInfo(String justAddedId) {
     int index = -1;
     if (list.getChildCount() > 0) {
@@ -91,5 +105,10 @@ public class FileUploaderList extends FileUploader {
         fileInfo.getName()
         + ", " + fileInfo.getPercentageReady() + "%"
     );
+  }
+
+  @Override
+  public void onUploadingCompleted(UploadingCompletedEvent event) {
+    GWT.log("all files uploaded");
   }
 }

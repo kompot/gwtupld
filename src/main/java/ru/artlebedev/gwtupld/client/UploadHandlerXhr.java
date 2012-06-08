@@ -56,6 +56,10 @@ public class UploadHandlerXhr extends UploadHandlerAbstract {
   @Override
   protected String _upload(final String id, Map<String, String> params) {
     final File file = files.get(id);
+    // probably file has just been dequeued
+    if (file == null) {
+      return null;
+    }
     final String name = getName(id);
     final long size = getSize(id);
     
@@ -140,7 +144,6 @@ public class UploadHandlerXhr extends UploadHandlerAbstract {
     files.remove(id);
     xhr.clearOnReadyStateChange();
     xhrs.remove(id);
-    _dequeue(id);
   }
 
   public native static boolean isSupported() /*-{

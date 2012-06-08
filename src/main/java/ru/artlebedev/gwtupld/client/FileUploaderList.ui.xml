@@ -21,6 +21,8 @@
       Method `Initialize` of `FileUploader` has not been
       called from a subclass constructor
     </div>
+    <br />
+    <button ui:field="cancel">Cancel uploading</button>
     <ul ui:field="list" />
   </div>
 </ui:UiBinder>

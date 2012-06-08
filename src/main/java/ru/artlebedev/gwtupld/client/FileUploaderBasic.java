@@ -57,11 +57,6 @@ public class FileUploaderBasic extends FileUploader
   }
 
   @Override
-  public void onCancel(String id, String filename) {
-    // TODO mark item as cancelled in the list and delete it from server
-  }
-
-  @Override
   protected void onDropEvent() {
     getDropZone().removeClassName(style.dropzoneHover());
   }

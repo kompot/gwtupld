@@ -49,9 +49,13 @@ public abstract class UploadHandlerAbstract {
     _dequeue(id);
   }
 
-  public void cancelAll(String id) {
-    for (String s : queue) {
+  public void cancelAll() {
+    List<String> queueCopy = new ArrayList<String>(queue);
+    for (String s : queueCopy) {
       _cancel(s);
+    }
+    for (String s : queueCopy) {
+      _dequeue(s);
     }
   }
 

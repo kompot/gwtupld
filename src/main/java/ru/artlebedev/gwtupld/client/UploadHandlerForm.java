@@ -57,9 +57,9 @@ public class UploadHandlerForm extends UploadHandlerAbstract {
   protected String _upload(String id, Map<String, String> params) {
     InputElement inputElement = inputs.get(id);
 
+    // probably file has just been dequeued
     if (inputElement == null) {
-      throw new RuntimeException("File with passed id was not added, or" +
-          "already uploaded or cancelled");
+      return null;
     }
 
     final String fileName = getName(id);
@@ -111,7 +111,6 @@ public class UploadHandlerForm extends UploadHandlerAbstract {
     } else {
       progressHandlers.onComplete(id, fileName, jsonValue);
     }
-    _dequeue(id);
     inputs.remove(id);
     // timeout added to fix busy state in FF3.6
     Timer t = new Timer() {
