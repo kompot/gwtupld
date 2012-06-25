@@ -1,9 +1,10 @@
 package ru.artlebedev.gwtupld.client;
 
+import ru.artlebedev.gwtupld.client.utils.UUID;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import ru.artlebedev.gwtupld.client.utils.UUID;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.FormElement;
@@ -185,15 +186,14 @@ public class UploadHandlerForm extends UploadHandlerAbstract {
    * Creates form, that will be submitted to iframe
    */
   private FormElement _createForm(String iframeName, Map<String, String> params) {
-    // We can't use the following code in IE6
-    // var form = document.createElement('form');
-    // form.setAttribute('method', 'post');
-    // form.setAttribute('enctype', 'multipart/form-data');
-    // Because in this case file won't be attached to request
-    // TODO: test upload in IE6
+    // TODO: test upload in IE6/7
     final FormElement form = Document.get().createFormElement();
     form.setMethod("post");
-    form.setEnctype("multipart/form-data");
+    final String enctype = "multipart/form-data";
+    form.setEnctype(enctype);
+    // this one fixes IE as it does not allow setting enctype on-the-fly
+    // why is this not done inside GWT setEnctype implementation for IE?
+    form.setAttribute("encoding", enctype);
     form.setAction(appendParamsToAction(
         options.getAction(),
         options.getParams()

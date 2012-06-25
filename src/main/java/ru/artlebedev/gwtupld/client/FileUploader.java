@@ -17,9 +17,6 @@ import java.util.Map;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.EventTarget;
-import com.google.gwt.dom.client.InputElement;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.DragEnterEvent;
 import com.google.gwt.event.dom.client.DragEnterHandler;
 import com.google.gwt.event.dom.client.DragLeaveEvent;
@@ -41,7 +38,7 @@ public abstract class FileUploader extends Widget
     implements UploadProgressHandlers, HasHandlers {
   private HandlerManager handlerManager;
   private UploadButton uploadButton;
-  private InputElement fileInput;
+  private FileInputElement fileInput;
   private Options options;
   // what is it for? why not use Queue from UploadHandler
   private int filesInProgress = 0;
@@ -101,7 +98,7 @@ public abstract class FileUploader extends Widget
     fileInput = createUploadButton(getDropZone());
     // TODO: what is this for?
     // preventLeaveInProgress();
-    addInputChangeHandlers();
+    addInputChangeHandlers(fileInput);
     addDragAndDropHandlers();
   }
 
@@ -139,18 +136,12 @@ public abstract class FileUploader extends Widget
     return uploadButton.getInput();
   }
 
-  private void addInputChangeHandlers() {
-    addDomHandler(new ChangeHandler() {
-      @Override
-      public void onChange(ChangeEvent event) {
-        final EventTarget et = event.getNativeEvent().getEventTarget();
-        final Element el = Element.as(et);
-        if (el == fileInput) {
-          onInputChange((FileInputElement) fileInput);
-        }
-      }
-    }, ChangeEvent.getType());
-  }
+  private native void addInputChangeHandlers(FileInputElement element) /*-{
+    var that = this;
+    element.onchange = function () {
+      that.@ru.artlebedev.gwtupld.client.FileUploader::onInputChange(Lru/artlebedev/gwtupld/client/FileInputElement;)(element);
+    };
+  }-*/;
 
   private void onInputChange(FileInputElement input) {
     if (uploadHandler instanceof UploadHandlerXhr) {

@@ -36,7 +36,7 @@ public abstract class AbstractGwtupldServlet extends HttpServlet {
       throws ServletException, IOException {
     setAllowedHeaders(resp);
     resp.setCharacterEncoding("UTF-8");
-    resp.setHeader("Content-Type", "application/json");
+    resp.setHeader("Content-Type", "text/html");
 
     final PrintWriter writer = resp.getWriter();
     if (req.getContentType().equals("application/octet-stream")) {
