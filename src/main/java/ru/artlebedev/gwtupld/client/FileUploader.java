@@ -95,10 +95,9 @@ public abstract class FileUploader extends Widget
         messages.welcomeXhr() :
         messages.welcomeIframe()
     );
-    fileInput = createUploadButton(getDropZone());
+    createUploadButton(getDropZone());
     // TODO: what is this for?
     // preventLeaveInProgress();
-    addInputChangeHandlers(fileInput);
     addDragAndDropHandlers();
   }
 
@@ -125,7 +124,7 @@ public abstract class FileUploader extends Widget
     return uploadHandler;
   }
 
-  private FileInputElement createUploadButton(Element container) {
+  private void createUploadButton(Element container) {
     if (uploadButton != null) {
       uploadButton.reset();
     }
@@ -133,7 +132,8 @@ public abstract class FileUploader extends Widget
         container,
         options.isMultiple() && options.useAdvancedUploader()
     );
-    return uploadButton.getInput();
+    fileInput = uploadButton.getInput();
+    addInputChangeHandlers(fileInput);
   }
 
   private native void addInputChangeHandlers(FileInputElement element) /*-{
@@ -151,7 +151,7 @@ public abstract class FileUploader extends Widget
         uploadFile(input);
       }
     }
-    fileInput = createUploadButton(getDropZone());
+    createUploadButton(getDropZone());
   }
 
   private void uploadFileList(FileList files) {
